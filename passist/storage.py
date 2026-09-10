@@ -136,7 +136,7 @@ def load_agent_rules() -> str:
 # ---------------------------------------------------------------------------
 
 def default_hotkey_overrides() -> dict[str, Any]:
-    """The default per-stage hotkeys (F-keys), from the stage list."""
+    """The default per-stage hotkeys (Shift+F keys), from the stage list."""
     out: dict[str, Any] = {}
     for stage in load_stages():
         # Map stage_id to the settings key (drop hyphen).
