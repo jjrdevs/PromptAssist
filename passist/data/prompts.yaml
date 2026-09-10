@@ -19,7 +19,7 @@ defaults:
 stages:
   research:
     name: Research
-    default_hotkey: F2
+    default_hotkey: Shift+F2
     fallback_hotkey: "Ctrl+Shift+1"
     artifact: "{feature_name}_research.md"
     path: "docs/development"
@@ -59,7 +59,7 @@ stages:
 
   plan:
     name: Plan
-    default_hotkey: F3
+    default_hotkey: Shift+F3
     fallback_hotkey: "Ctrl+Shift+2"
     artifact: "{feature_name}_plan.md"
     path: "docs/development"
@@ -98,7 +98,7 @@ stages:
 
   check-plan:
     name: Check plan
-    default_hotkey: F4
+    default_hotkey: Shift+F4
     fallback_hotkey: "Ctrl+Shift+3"
     artifact: "{feature_name}_plan.md"
     path: "docs/development"
@@ -135,7 +135,7 @@ stages:
 
   build:
     name: Build
-    default_hotkey: F5
+    default_hotkey: Shift+F5
     fallback_hotkey: "Ctrl+Shift+4"
     artifact: "{feature_name}_progress.md"
     path: "docs/development"
@@ -179,7 +179,7 @@ stages:
 
   continue:
     name: Continue
-    default_hotkey: F6
+    default_hotkey: Shift+F6
     fallback_hotkey: "Ctrl+Shift+5"
     artifact: "{feature_name}_progress.md"
     path: "docs/development"
@@ -209,7 +209,7 @@ stages:
 
   review-code:
     name: Review code
-    default_hotkey: F7
+    default_hotkey: Shift+F7
     fallback_hotkey: "Ctrl+Shift+6"
     artifact: "{feature_name}_review-code.md"
     path: "docs/development"

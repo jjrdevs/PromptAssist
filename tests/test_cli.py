@@ -156,10 +156,10 @@ class TestApplySafeFallbacks:
 
 
 class TestReset:
-    def test_reset_returns_to_Fkey_defaults(self, cli_env):
+    def test_reset_returns_to_shift_f_defaults(self, cli_env):
         run_cli(["apply-safe-fallbacks"], env=cli_env)
         run_cli(["reset"], env=cli_env)
         r = run_cli(["show"], env=cli_env)
         import json
         s = json.loads(r.stdout)
-        assert s["hotkeys"]["research"] == "F2"
+        assert s["hotkeys"]["research"] == "Shift+F2"
