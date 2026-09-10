@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PromptAssist</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">⚡</span>
+      <span class="title">PromptAssist</span>
+      <span class="subtitle">6-stage AI-coding workflow</span>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab active" role="tab" data-tab="stages">Stages</button>
+      <button class="tab" role="tab" data-tab="features">Features</button>
+      <button class="tab" role="tab" data-tab="settings">Settings</button>
+    </nav>
+    <div class="brand-side">
+      <span id="data-dir" class="muted"></span>
+      <button id="quit-btn" class="btn ghost" title="Quit PromptAssist">Quit</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ================= STAGES ================= -->
+    <section id="tab-stages" class="tabpane active">
+      <div class="row feature-bar">
+        <label for="active-feature">Active feature</label>
+        <select id="active-feature" class="input"></select>
+        <button id="new-feature-btn" class="btn">+ New feature</button>
+        <span id="stage-preview-meta" class="muted"></span>
+      </div>
+
+      <div class="stages-grid" id="stages-grid"></div>
+
+      <div class="preview-block">
+        <div class="preview-head">
+          <span>Rendered prompt</span>
+          <div class="preview-actions">
+            <button id="copy-btn" class="btn small">Copy</button>
+            <button id="auto-paste-toggle" class="btn small toggle"></button>
+          </div>
+        </div>
+        <pre id="preview" class="preview">Pick any stage — or press its hotkey — to render here.</pre>
+      </div>
+    </section>
+
+    <!-- ================= FEATURES ================= -->
+    <section id="tab-features" class="tabpane">
+      <div class="row">
+        <button id="new-feature-btn-2" class="btn">+ New feature</button>
+      </div>
+      <table class="feat-table">
+        <thead>
+          <tr><th>Feature</th><th>Target repo</th><th>Created</th><th>Last stage</th><th>Fires</th><th></th></tr>
+        </thead>
+        <tbody id="feat-rows"></tbody>
+      </table>
+    </section>
+
+    <!-- ================= SETTINGS ================= -->
+    <section id="tab-settings" class="tabpane">
+      <div class="settings-grid">
+        <div class="card">
+          <h3>Auto-paste</h3>
+          <label class="toggle-row">
+            <input type="checkbox" id="auto-paste" />
+            <span>Paste into the active window immediately (otherwise just copy)</span>
+          </label>
+          <p class="muted">When a stage fires, the rendered prompt is copied to the clipboard.
+             Enabling auto-paste also drives the OS to paste into whatever you had focused
+             (Claude, Cursor, IDE, etc.). Disable to force copy-only.</p>
+        </div>
+
+        <div class="card">
+          <h3>Hotkeys</h3>
+          <p class="muted">Global shortcuts. Blank = disabled (button/tray only).
+             Save after editing. Conflicts are detected live.</p>
+          <table class="hk-table" id="hk-table">
+            <thead><tr><th>Stage</th><th>Current</th><th>Safe fallback</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <div class="row" style="margin-top:12px">
+            <button id="apply-safe" class="btn small">← Use safe fallbacks</button>
+            <button id="reset-bindings" class="btn small ghost">Reset to defaults</button>
+            <button id="save-bindings" class="btn small">Save</button>
+          </div>
+          <p id="hk-conflict" class="warn" hidden></p>
+        </div>
+
+        <div class="card">
+          <h3>Data</h3>
+          <div class="row">
+            <button id="export-md" class="btn">Export all 6 prompts (.md)</button>
+            <button id="sync-agent" class="btn">Sync agent files</button>
+          </div>
+          <p class="muted">Agent-file sync writes CLAUDE.md, AGENTS.md, .github/copilot-instructions.md,
+             GEMINI.md from one agent_rules.md into the active feature's target repo.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="statusbar">
+    <span id="status">ready</span>
+    <span id="status-detail" class="muted"></span>
+  </footer>
+
+  <!-- Modal: new feature -->
+  <div id="modal" class="modal-backdrop" hidden>
+    <div class="modal">
+      <h3>New feature</h3>
+      <label>Feature name <span class="muted">(snake_case)</span></label>
+      <input id="nf-name" class="input" placeholder="add_session_logging" />
+      <label>Target repo <span class="muted">(absolute path)</span></label>
+      <input id="nf-repo" class="input" placeholder="/home/jjrdev/workspace/MyRepo" />
+      <div class="row" style="justify-content:flex-end">
+        <button id="nf-cancel" class="btn ghost">Cancel</button>
+        <button id="nf-ok" class="btn">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./app.js"></script>
+</body>
+</html>

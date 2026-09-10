@@ -1,0 +1,245 @@
+# PromptAssist prompt templates
+# Version 1 — 6 intent-aligned stages.
+#
+# Placeholders (rendered by passist/render.py::substitute):
+#   {feature_name}  — snake_case feature name (normalized, e.g. add_session_logging)
+#   {target_repo}   — absolute path to the target repository
+#   {agent_name}    — the AI assistant we're talking to (default: Copilot)
+#
+# Every stage has a stop_rule (header) and a prompt (body). The render function
+# concatenates stop_rule + blank line + prompt, then substitutes placeholders.
+#
+# Hotkeys are set in settings.json (or the Settings tab) — not here.
+
+version: 1
+
+defaults:
+  agent_name: Copilot
+
+stages:
+  research:
+    name: Research
+    default_hotkey: F2
+    fallback_hotkey: "Ctrl+Shift+1"
+    artifact: "{feature_name}_research.md"
+    path: "docs/development"
+    stop_rule: |
+      [STAGE: RESEARCH — 1/6]
+      This is the RESEARCH stage. Do not create a plan. Do not write code. Do not modify any file.
+      Confirm in one sentence: "This is the research stage for {feature_name}."
+      Then produce the research report exactly as specified below.
+
+    prompt: |
+      I want to implement the following feature:
+
+      Feature: {feature_name}
+      Target repository: {target_repo}
+
+      Before making any implementation decisions:
+
+      1. Research how this feature is typically implemented in professional software / game development.
+      2. Identify common architecture patterns, failure points, and best practices.
+      3. Review the existing documentation in `docs/`.
+      4. Review the current codebase structure relevant to this feature.
+      5. Identify how this feature should integrate with the existing systems.
+
+      Return a detailed research report containing:
+
+      - Feature overview
+      - Industry-standard approaches
+      - Recommended architecture approach
+      - Existing systems affected
+      - New systems/files required
+      - Potential risks or failure points
+      - Questions that need clarification before planning
+
+      Write the full report to `docs/development/{feature_name}_research.md`.
+
+      Do not create an implementation plan yet.
+
+  plan:
+    name: Plan
+    default_hotkey: F3
+    fallback_hotkey: "Ctrl+Shift+2"
+    artifact: "{feature_name}_plan.md"
+    path: "docs/development"
+    stop_rule: |
+      [STAGE: PLAN — 2/6]
+      This is the PLAN stage. Create the planning document only.
+      Do not write implementation code. Do not modify existing source files.
+      Confirm in one sentence: "This is the planning stage for {feature_name}."
+
+    prompt: |
+      Using:
+
+      - The research report at `docs/development/{feature_name}_research.md`
+      - The existing documentation in `docs/`
+      - The current implementation
+
+      Create a development plan for:
+
+      Feature: {feature_name}
+      Target repository: {target_repo}
+
+      The plan must:
+
+      1. Follow the existing architecture patterns.
+      2. Avoid unnecessary refactors.
+      3. Identify dependencies.
+      4. Break development into logical phases.
+      5. Identify files that need to be created or modified.
+      6. Explain how systems communicate.
+      7. Define testing requirements.
+
+      Write the plan to `docs/development/{feature_name}_plan.md`.
+
+      Do not write implementation code yet.
+      Only create the plan.
+
+  check-plan:
+    name: Check plan
+    default_hotkey: F4
+    fallback_hotkey: "Ctrl+Shift+3"
+    artifact: "{feature_name}_plan.md"
+    path: "docs/development"
+    stop_rule: |
+      [STAGE: CHECK PLAN — 3/6]
+      This is the CHECK-PLAN stage. Read and improve the plan.
+      Do not begin implementation. Do not write new source code files.
+      Confirm in one sentence: "This is the check-plan stage for {feature_name}."
+
+    prompt: |
+      Read the development plan at `docs/development/{feature_name}_plan.md`.
+
+      Audit it. Look for:
+
+      - Missing dependencies
+      - Incorrect assumptions
+      - Architecture conflicts
+      - Poor separation of responsibilities
+      - Potential scalability problems
+      - Security/networking problems
+      - Data consistency issues
+      - Missing documentation updates
+      - Implementation risks
+
+      For every issue found:
+
+      1. Explain the problem.
+      2. Explain why it matters.
+      3. Provide the recommended correction.
+
+      Update `docs/development/{feature_name}_plan.md` with the necessary changes.
+
+      Do not begin implementation.
+
+  build:
+    name: Build
+    default_hotkey: F5
+    fallback_hotkey: "Ctrl+Shift+4"
+    artifact: "{feature_name}_progress.md"
+    path: "docs/development"
+    stop_rule: |
+      [STAGE: BUILD — 4/6]
+      This is the BUILD stage. Implement the plan.
+      Maintain existing architecture. Do not create unnecessary systems.
+      Confirm in one sentence: "This is the build stage for {feature_name}."
+
+    prompt: |
+      Begin development of {feature_name} according to
+      `docs/development/{feature_name}_plan.md`.
+
+      Feature: {feature_name}
+      Target repository: {target_repo}
+
+      Rules:
+
+      - Follow the plan exactly unless a technical issue requires deviation.
+      - If the plan becomes invalid, stop and explain why.
+      - Do not create unnecessary systems.
+      - Maintain existing architecture patterns.
+      - Update documentation when architecture changes.
+      - Keep implementation modular and maintainable.
+
+      Before modifying files, explain:
+
+      - What files will change.
+      - Why they need changing.
+      - How the changes satisfy the plan.
+
+      Maintain a progress log at `docs/development/{feature_name}_progress.md` containing:
+
+      - Completed tasks
+      - Files modified
+      - Remaining work
+      - Known issues
+      - Decisions made
+
+      Then proceed with development.
+
+  continue:
+    name: Continue
+    default_hotkey: F6
+    fallback_hotkey: "Ctrl+Shift+5"
+    artifact: "{feature_name}_progress.md"
+    path: "docs/development"
+    stop_rule: |
+      [STAGE: CONTINUE — 5/6]
+      This is the CONTINUE stage. Pick up where Build left off.
+      Do not restart completed work. Do not skip review of in-progress state.
+      Confirm in one sentence: "This is the continue stage for {feature_name}."
+
+    prompt: |
+      Continue development of {feature_name} according to
+      `docs/development/{feature_name}_plan.md`.
+
+      First:
+
+      1. Review what has already been completed (consult
+         `docs/development/{feature_name}_progress.md`).
+      2. Identify unfinished tasks.
+      3. Check whether the current implementation still matches the plan.
+      4. Identify blockers.
+      5. Determine what the next correct development step is.
+
+      Then continue development from the current unfinished step.
+
+      Do not redo completed work.
+      Update `docs/development/{feature_name}_progress.md` as you proceed.
+
+  review-code:
+    name: Review code
+    default_hotkey: F7
+    fallback_hotkey: "Ctrl+Shift+6"
+    artifact: "{feature_name}_review-code.md"
+    path: "docs/development"
+    stop_rule: |
+      [STAGE: REVIEW CODE — 6/6]
+      This is the REVIEW-CODE stage. Audit the implementation.
+      Do not modify code. Do not introduce new features.
+      Confirm in one sentence: "This is the review-code stage for {feature_name}."
+
+    prompt: |
+      Audit the implementation of {feature_name} (in `{target_repo}`) against:
+
+      - `docs/development/{feature_name}_plan.md`
+      - Relevant documentation in `docs/`
+      - Existing architecture requirements
+
+      Check:
+
+      - Is every planned requirement completed?
+      - Are all systems connected correctly?
+      - Are edge cases handled?
+      - Are there missing documentation updates?
+      - Are there potential bugs?
+      - Are there performance concerns?
+      - Are there security/networking concerns?
+
+      Return, as the body of a new file at
+      `docs/development/{feature_name}_review-code.md`:
+
+      1. Completed items
+      2. Missing items
+      3. Issues found
+      4. Recommended fixes

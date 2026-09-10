@@ -1,0 +1,58 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "promptassist"
+version = "0.1.0"
+description = "PromptAssist — lightweight Windows desktop prompt utility for the 6-stage AI-coding workflow."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "jjrdevs"}]
+keywords = ["prompt-engineering", "ai-coding", "workflow", "windows"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: Microsoft :: Windows",
+  "License :: OSI Approved :: MIT License",
+]
+dependencies = [
+  "PyYAML>=6",
+  "packaging>=23",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7",
+  "pytest-cov>=4",
+  "ruff>=0.5",
+  "black>=24",
+]
+
+[project.scripts]
+passist = "passist.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/jjrdevs/PromptAssist"
+BugTracker = "https://github.com/jjrdevs/PromptAssist/issues"
+
+[tool.setuptools]
+packages = ["passist"]
+
+[tool.setuptools.package-data]
+passist = ["data/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.black]
+line-length = 110
+target-version = ["py310"]
