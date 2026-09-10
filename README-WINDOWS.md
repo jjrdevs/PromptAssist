@@ -18,39 +18,43 @@ coding. PromptAssist does not call any LLM itself.
 
 ## What ships
 
-Two .exe files, one folder:
+Two .exe files and a folder:
 
 ```
 PromptAssist/
-├─ PromptAssist.exe     # GUI: tray app + shortcut window (F-keys)
-├─ passist.exe          # CLI: same features from a terminal
-└─ README-USE.md        # how-to for the person using it
+├─ passist_gui_launcher.exe  # GUI: Tkinter window with Stages + Settings tabs
+├─ passist.exe               # CLI: same features from a terminal
+└─ README-WINDOWS.md         # this guide
 ```
 
-That's the whole distribution. Nothing else to install, nothing to configure.
-The prompts are baked in and live in the same place as your feature store:
+The prompts and settings live in your user folder:
 
 ```
 %LOCALAPPDATA%\PromptAssist\
 ├─ features.json
 ├─ settings.json
-├─ prompts.yaml
-└─ agent_rules.md
 ```
 
 ## Fastest path (5 minutes)
 
+### Using the GUI launcher
+
 1. Copy the `PromptAssist` folder to your Windows machine (zip/SharePoint/Dropbox/USB).
-2. Unzip it if it's a zip. Double-click `PromptAssist.exe`.
-3. A tray icon appears with the 6 stages. Press **F2** through **F7** to fire them,
-   **F8** auto-advances to the next stage, **F9** pops the window if you lose it,
-   **Ctrl+Alt+Q** quits.
-4. Your AI coding tool's prompt box already has the next prompt pasted in
+2. Unzip it if it's a zip. Double-click `passist_gui_launcher.exe` (in the `dist/` folder).
+3. The PromptAssist window opens with:
+   - **Stages tab**: Shows 6 stage buttons (Research, Plan, Check plan, Build, Continue, Review code)
+   - **Settings tab**: Configure hotkeys and toggle auto-paste
+4. Enter a feature name and click a stage button, or press the hotkey:
+   - **Shift+F2** through **Shift+F7** for the 6 stages (default)
+   - **Ctrl+Alt+Q** to quit
+5. Your AI coding tool's prompt box already has the next prompt pasted in
    (auto-paste is ON by default; toggle it under **Settings**).
 
-Or, if you prefer the terminal:
+### Using the terminal
 
-```
+If you prefer the command line:
+
+```powershell
 > passist new my_feature --target C:\myRepo
 > passist run research my_feature
 > passist run plan my_feature
@@ -60,60 +64,67 @@ Or, if you prefer the terminal:
 > passist run review-code my_feature
 ```
 
+## Customizing hotkeys
+
+Click the **Settings** tab in the launcher to:
+- **Change any hotkey** — type a new combo (e.g., `Ctrl+Shift+1`, `Ctrl+Alt+R`)
+- **Toggle auto-paste** — auto-paste into your AI tool's prompt box (default: ON)
+- **Save hotkeys** — write changes to disk in one go (no terminal pop-ups)
+- **Use safe fallbacks** — apply pre-configured alternatives if your defaults conflict
+- **Reset to defaults** — restore the original Shift+F hotkeys
+
 ## Build it yourself (for developers)
 
-You don't need this if you already have the two .exe files. This is for people
+You don't need this if you already have the .exe files. This is for developers
 **creating** the Windows release from source.
 
-### One-click
+### Quick build (GUI + CLI)
 
 ```powershell
-# On a Windows machine with Rust, Node and Python installed:
+# On a Windows machine with Python 3.10+ installed:
 cd PromptAssist
-.\build.ps1
+python -m venv .venv
+.\.venv\Scripts\pip install -e ".[dev]"
+.\.venv\Scripts\pip install pyinstaller keyboard
+
+# Build CLI
+.\.venv\Scripts\python -m PyInstaller -y --clean --noconsole --onefile passist.spec
+
+# Build GUI launcher
+.\.venv\Scripts\python -m PyInstaller -y --clean --noconsole --onefile passist_gui_launcher.py
 ```
 
-That gives you `dist\PromptAssist.exe`, `dist\passist.exe`, and a shareable zip at
-`PromptAssist-windows.zip`.
+That gives you:
+- `dist\passist.exe` (core CLI)
+- `dist\passist_gui_launcher.exe` (Tkinter GUI wrapper)
 
-### Flags
+Both are self-contained and need no runtime.
 
-| Flag          | Effect                                     |
-|---------------|--------------------------------------------|
-| `-SkipGui`    | Only build the CLI (fast, no Rust needed)  |
-| `-SkipCli`    | Only build the GUI                         |
-| `-NoZip`      | Skip the zip, keep the `dist\setup\` folder |
-
-### Step-by-step (manual)
-
-**Prereqs** — install each before running:
-
-| Package   | Where                          | Notes                              |
-|-----------|-------------------------------|------------------------------------|
-| Python 3  | python.org / winget           | 3.10+                              |
-| Rust      | rustup.rs / winget            | `rustup default stable-x86_64-pc-windows-msvc` |
-| Node.js   | nodejs.org / winget           | 18+                                |
-| WebView2  | aka.ms/webview2 (already on Win 11; on Win 10 install) | Required for Tauri |
+### Manual steps
 
 ```powershell
-# 0. sanity check
-python --version
-rustc --version
-node --version
+# 1. Set up the environment
+python -m venv .venv
+.\.venv\Scripts\activate
+pip install -e ".[dev]"
+pip install pyinstaller keyboard
 
-# 1. one-file CLI (no Rust needed, ~90 s)
-pip install pyinstaller
-python -m PyInstaller -y --clean passist.spec
-#  -> dist\passist.exe
+# 2. Run tests to verify
+pytest -q
 
-# 2. GUI (takes 2–5 minutes, Rust + Node)
-cd gui
-cargo tauri build
-#  -> ..\dist\PromptAssist.exe
+# 3. Build the CLI
+python -m PyInstaller -y --clean --noconsole --onefile passist.spec
+# -> dist\passist.exe
 
-# 3. assemble the share folder
-mkdir dist\setup
-copy dist\passist.exe        dist\setup\
+# 4. Build the GUI launcher
+python -m PyInstaller -y --clean --noconsole --onefile passist_gui_launcher.py
+# -> dist\passist_gui_launcher.exe
+
+# 5. Zip for sharing
+Compress-Archive -Path dist -DestinationPath PromptAssist-windows.zip
+```
+
+
 copy dist\PromptAssist.exe   dist\setup\
 #  (optional: also copy a short README-USE.md there — see build.ps1)
 
